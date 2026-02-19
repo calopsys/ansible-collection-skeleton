@@ -1,0 +1,25 @@
+---
+namespace: {{ namespace }}
+name: {{ collection_name }}
+readme: README.md
+authors:
+  - Calopsys <tech@calopsys.fr>
+license_file: 'LICENSE'
+repository: https://github.com/calopsys/ansible-collection-{{ collection_name }}
+issues: https://github.com/calopsys/ansible-collection-{{ collection_name }}/issues
+documentation: https://github.com/calopsys/ansible-collection-{{ collection_name }}
+homepage: https://www.calopsys.fr
+tags: ['linux']
+
+# changeme
+version: 0.0.1
+description: Installs, manages and configure a {{ collection_name }} instance on a Debian system.
+dependencies: {}
+build_ignore:
+  - .gitignore
+  - .ansible-lint
+  - .github
+  - build
+  - changelogs/fragments
+  - tests
+  - Makefile

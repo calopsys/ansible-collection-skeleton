@@ -1,0 +1,30 @@
+# Calopsys Ansible Collection {{ collection_name }}
+
+## Installation
+
+To install the collection you should create a file called `galaxy_requirements.yml` containing something like this :
+
+```yaml
+collections:
+  # Install the collection using the latest commit of `main` branch
+  - name: git@github.com:calopsys/ansible-collection-{{ collection_name }}.git
+    type: git
+    version: "main"
+
+  # Install the collection using the `1` git tag
+  - name: git@github.com:calopsys/ansible-collection-{{ collection_name }}.git
+    type: git
+    version: "1"
+```
+
+Then run `ansible-galaxy install -r galaxy_requirements.yml`.
+
+## Usage
+
+### Playbooks
+
+### Plugins
+
+## Licensing
+
+This codebase is licensed under the MIT License.
