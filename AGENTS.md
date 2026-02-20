@@ -18,22 +18,37 @@ make lint                    # Run ansible-lint with production profile
 
 ### Testing
 ```bash
-make test.sanity             # Run ansible-test sanity (requires Docker)
-make testfull                # Run both lint and sanity tests
+make test.sanity             # Run ansible-test sanity
+make molecule                # Run molecule tests for all roles
+make molecule role=rolename  # Run molecule tests for a specific role
+make test                    # Run lint, sanity, and molecule tests
 ```
 
-### Running a Single Test
-For sanity tests on specific files:
+### Running Molecule Commands
+
+Molecule is used for integration testing. Tests are located in `extensions/molecule/` with shared configuration.
+
 ```bash
-ansible-test sanity --docker -v --test <test_name> <path/to/file>
+# Run full test sequence (destroy, create, prepare, converge, idempotence, verify, destroy)
+make molecule role=rolename
+
+# Run just the converge step (apply the role)
+make molecule.converge role=rolename
+
+# Run just the verify step
+make molecule.verify role=rolename
+
+# Test idempotency (run converge twice)
+make molecule.idempotence role=rolename
+
+# Create test instance
+make molecule.create role=rolename
+
+# Destroy test instance
+make molecule.destroy role=rolename
 ```
 
-Common test names: `import`, `compile`, `validate-modules`, `shellcheck`, `yamllint`, `ansible-doc`
-
-Example - run yamllint on a specific file:
-```bash
-ansible-test sanity --docker -v --test yamllint plugins/modules/my_module.py
-```
+Molecule uses **podman** for testing. The **idempotence** step automatically runs the role twice to verify no changes occur on the second run.
 
 ### Building
 ```bash
@@ -67,6 +82,14 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
 ├── changelogs/
 │   ├── config.yaml        # antsibull-changelog configuration
 │   └── fragments/         # Changelog fragments
+├── extensions/
+│   └── molecule/          # Molecule integration tests
+│       ├── config.yml     # Global driver/provisioner config
+│       └── <scenario>/    # Per-role molecule scenarios
+│           ├── molecule.yml
+│           ├── prepare.yml
+│           ├── converge.yml
+│           └── verify.yml
 ├── meta/
 │   ├── runtime.yml        # Ansible version requirements
 │   └── execution-environment.yml  # ansible-builder config
@@ -76,10 +99,15 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
 │   ├── filter/            # Jinja2 filter plugins
 │   ├── lookup/            # Lookup plugins
 │   └── module_utils/      # Shared module utilities
-└── tests/
-    ├── integration/       # Integration tests
-    │   └── targets/
-    └── unit/              # Unit tests
+└── roles/
+    └── <rolename>/        # Role directories
+        ├── defaults/main.yml
+        ├── handlers/main.yml
+        ├── meta/
+        │   ├── main.yml
+        │   └── argument_specs.yml
+        ├── tasks/
+        └── templates/
 ```
 
 ## Code Style Guidelines
@@ -97,7 +125,7 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
   ```yaml
   ansible.builtin.debug:
   ansible.builtin.template:
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
   ```
 - Quote task names:
   ```yaml
@@ -122,7 +150,8 @@ tags: ["calopsys_myapp_configure"]
 ### Variable Naming
 
 - Use `snake_case` for variable names
-- Example: `myapp_config_path`, `myapp_service_name`
+- Prefix variables with `{{ namespace }}_{{ collection_name }}_` (e.g., `calopsys_myapp_user`)
+- Example: `calopsys_myapp_config_dir`, `calopsys_myapp_env_dir`
 
 ### Conditionals
 
@@ -130,7 +159,7 @@ tags: ["calopsys_myapp_configure"]
 - name: "Task with condition."
   ansible.builtin.debug:
     msg: "Conditional task"
-  when: "myapp_enable_feature | bool"
+  when: "calopsys_myapp_enable_feature | bool"
 ```
 
 ### Error Handling
@@ -170,6 +199,8 @@ Install required tools:
 pipx install ansible-lint
 pipx install antsibull-changelog
 pipx install aar-doc
+pipx install molecule
+pipx inject molecule molecule-plugins[podman]
 ```
 
 Ansible Core 2.18.0+ is required.
@@ -179,5 +210,5 @@ Ansible Core 2.18.0+ is required.
 1. Run `make lint` before committing
 2. Run `make test.sanity` before pushing
 3. Add changelog fragments for user-visible changes
-4. Write unit tests for plugins/modules in `tests/unit/`
-5. Write integration tests in `tests/integration/targets/`
+4. Write molecule tests in `extensions/molecule/<scenario>/`
+5. Update REFERENCE.md when changing role defaults or argument specs (run `make docs role=<name>`)

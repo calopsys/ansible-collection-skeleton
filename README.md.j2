@@ -1,30 +1,66 @@
-# Calopsys Ansible Collection {{ collection_name }}
+# Calopsys Ansible Collection - {{ collection_name }}
+
+An Ansible collection for the `calopsys` namespace.
+
+## Requirements
+
+- Ansible Core >= 2.18.0
+- Target: Debian-based systems
 
 ## Installation
 
-To install the collection you should create a file called `galaxy_requirements.yml` containing something like this :
+Create a `galaxy_requirements.yml` file:
 
 ```yaml
 collections:
-  # Install the collection using the latest commit of `main` branch
   - name: git@github.com:calopsys/ansible-collection-{{ collection_name }}.git
     type: git
-    version: "main"
-
-  # Install the collection using the `1` git tag
-  - name: git@github.com:calopsys/ansible-collection-{{ collection_name }}.git
-    type: git
-    version: "1"
+    version: "1.0.0"
 ```
 
-Then run `ansible-galaxy install -r galaxy_requirements.yml`.
+Then run:
+```bash
+ansible-galaxy collection install -r galaxy_requirements.yml
+```
 
 ## Usage
 
-### Playbooks
+Add roles to your playbook:
 
-### Plugins
+```yaml
+- name: "Deploy {{ collection_name }}."
+  hosts: all
+  roles:
+    - role: calopsys.{{ collection_name }}.rolename
+```
 
-## Licensing
+## Role Variables
 
-This codebase is licensed under the MIT License.
+Each role has its own set of variables documented in the respective `REFERENCE.md` files.
+
+## Development
+
+### Testing
+```bash
+make test.sanity              # Run ansible-test sanity
+make molecule                 # Run molecule tests for all roles
+make molecule role=rolename   # Run molecule tests for a specific role
+make test                     # Run lint, sanity, and molecule tests
+```
+
+Molecule tests use podman and include idempotency verification (runs the role twice to ensure no changes on second run).
+
+### Building
+```bash
+make build
+```
+
+### Documentation
+```bash
+make docs
+make docs role=rolename
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

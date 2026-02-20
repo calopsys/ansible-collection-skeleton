@@ -8,8 +8,56 @@ lint:
 test.sanity: clean
 	ansible-test sanity --docker -v --exclude LICENSE
 
-.PHONY: testfull
-testfull: lint test.sanity
+.PHONY: test
+test: lint test.sanity molecule
+
+.PHONY: molecule
+molecule:
+ifdef role
+	molecule test -s $(role)
+else
+	molecule test --all
+endif
+
+.PHONY: molecule.create
+molecule.create:
+ifdef role
+	molecule create -s $(role)
+else
+	molecule create --all
+endif
+
+.PHONY: molecule.converge
+molecule.converge:
+ifdef role
+	molecule converge -s $(role)
+else
+	molecule converge --all
+endif
+
+.PHONY: molecule.verify
+molecule.verify:
+ifdef role
+	molecule verify -s $(role)
+else
+	molecule verify --all
+endif
+
+.PHONY: molecule.idempotence
+molecule.idempotence:
+ifdef role
+	molecule idempotence -s $(role)
+else
+	molecule idempotence --all
+endif
+
+.PHONY: molecule.destroy
+molecule.destroy:
+ifdef role
+	molecule destroy -s $(role)
+else
+	molecule destroy --all
+endif
 
 .PHONY: clean
 clean:

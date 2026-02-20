@@ -30,7 +30,36 @@ You can use the Makefile to start the sanity tests, which uses `ansible-test` (b
 make test.sanity
 ```
 
-For more information about sanity tests, unit tests and integration tests, see [Testing Collections](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections_testing.html#testing-collections).
+### Molecule Tests
+
+This collection uses [Molecule](https://molecule.readthedocs.io/) for integration testing with podman. Molecule provides:
+- Container-based test instances
+- Automatic idempotency verification (runs the role twice to ensure no changes on second run)
+- Verification tests after converge
+
+```bash
+make molecule              # Run molecule tests for all roles
+make molecule role=rolename   # Run molecule tests for a specific role
+```
+
+Individual molecule commands:
+
+```bash
+make molecule.create role=rolename      # Create test instance
+make molecule.converge role=rolename    # Apply the role
+make molecule.verify role=rolename      # Run verification tests
+make molecule.idempotence role=rolename # Verify idempotency
+make molecule.destroy role=rolename     # Destroy test instance
+```
+
+Molecule tests are located in `extensions/molecule/`:
+- `config.yml` - Global driver and platform configuration
+- `<scenario>/molecule.yml` - Scenario-specific configuration
+- `<scenario>/prepare.yml` - Prepare test instance (install dependencies)
+- `<scenario>/converge.yml` - Playbook that applies the role
+- `<scenario>/verify.yml` - Verification tests
+
+For more information, see [Molecule documentation](https://molecule.readthedocs.io/).
 
 ## Documentation
 

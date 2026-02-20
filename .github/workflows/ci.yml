@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - stable-*
   pull_request:
   schedule:
     - cron: "0 6 * * *"
@@ -28,35 +27,36 @@ jobs:
           testing-type: sanity
           pull-request-change-detection: false
 
-  units:
-    name: Units
+  molecule:
+    name: Molecule
     runs-on: ubuntu-latest
     steps:
-      - name: Perform unit testing
-        uses: ansible-community/ansible-test-gh-action@release/v1
-        with:
-          ansible-core-version: stable-2.20
-          testing-type: units
-          pull-request-change-detection: false
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  integration:
-    name: Integration (py3.13)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Perform integration testing
-        uses: ansible-community/ansible-test-gh-action@release/v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ansible-core-version: stable-2.20
-          target-python-version: "3.13"
-          testing-type: integration
-          pull-request-change-detection: false
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core molecule molecule-plugins[podman]
+
+      - name: Install collection
+        run: |
+          mkdir -p ~/.ansible/collections/ansible_collections/{{ namespace }}
+          ln -s $GITHUB_WORKSPACE ~/.ansible/collections/ansible_collections/{{ namespace }}/{{ collection_name }}
+
+      - name: Run Molecule tests
+        run: molecule test --all
 
   check:
     if: always()
     needs:
       - sanity
-      - units
-      - integration
+      - molecule
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
