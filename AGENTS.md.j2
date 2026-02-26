@@ -150,17 +150,8 @@ tags: ["calopsys_myapp_configure"]
 ### Variable Naming
 
 - Use `snake_case` for variable names
-- Prefix variables with `{{ namespace }}_{{ collection_name }}_` (e.g., `calopsys_myapp_user`)
+- Prefix variables with `{{ namespace }}_` (e.g., `calopsys_myapp_user`)
 - Example: `calopsys_myapp_config_dir`, `calopsys_myapp_env_dir`
-
-### Conditionals
-
-```yaml
-- name: "Task with condition."
-  ansible.builtin.debug:
-    msg: "Conditional task"
-  when: "calopsys_myapp_enable_feature | bool"
-```
 
 ### Error Handling
 
@@ -170,7 +161,7 @@ tags: ["calopsys_myapp_configure"]
     ansible.builtin.command: "some-command"
     register: result
     changed_when: "'changed' in result.stdout"
-    failed_when: result.rc != 0 and 'expected_error' not in result.stderr"
+    failed_when: "result.rc != 0 and 'expected_error' not in result.stderr"
   ```
 
 - Use `ignore_errors: true` sparingly and document why
@@ -183,27 +174,6 @@ tags: ["calopsys_myapp_configure"]
   # install tasks
   # configure tasks
   ```
-
-### Linting Rules
-
-The following ansible-lint rules are skipped (see `.ansible-lint`):
-- `galaxy[no-changelog]` - No changelog required
-- `var-naming[no-role-prefix]` - Variables don't need role prefix
-- `name[casing]` - Task name casing is flexible
-- `yaml[line-length]` - Line length limit not enforced
-
-## Dependencies
-
-Install required tools:
-```bash
-pipx install ansible-lint
-pipx install antsibull-changelog
-pipx install aar-doc
-pipx install molecule
-pipx inject molecule molecule-plugins[podman]
-```
-
-Ansible Core 2.18.0+ is required.
 
 ## Best Practices
 
